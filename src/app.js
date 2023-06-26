@@ -10,6 +10,8 @@ import jwt from "jsonwebtoken"
 
 // Import files
 import { connectDB } from "../config/dbConfig.js"
+import { errorHandler } from "./middleware/errorHandler.js"
+import userRoutes from "./routes/userRoutes.js"
 
 // Load env vars
 dotenv.config()
@@ -49,24 +51,24 @@ app.get("/", (req, res) => {
   res.status(200).json({ success: true, data: "Server is ready." })
 })
 
-app.post("/api/v1/users", asyncHandler( async(req, res) => {
-  try {
-    const token = jwt.sign({ name: "Polash Ahmad", age: 23 }, process.env.JWT_SECRET, {
-      expiresIn: "30d"
-    })
+// app.post("/api/v1/users", asyncHandler( async(req, res) => {
+//   try {
+//     const token = jwt.sign({ name: "Polash Ahmad", age: 23 }, process.env.JWT_SECRET, {
+//       expiresIn: "30d"
+//     })
 
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000
-    })
+//     res.cookie("jwt", token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: "none",
+//       maxAge: 30 * 24 * 60 * 60 * 1000
+//     })
 
-    res.status(200).json({ success: true, data:{ name: "Polash", age: 23 }})
-  } catch(error) {
-    res.status(201).json({ success: false, error })
-  }
-}))
+//     res.status(200).json({ success: true, data:{ name: "Polash", age: 23 }})
+//   } catch(error) {
+//     res.status(201).json({ success: false, error })
+//   }
+// }))
 
 
 app.post("/api/v1/users/logout", asyncHandler( async(req, res) => {
@@ -80,10 +82,10 @@ app.post("/api/v1/users/logout", asyncHandler( async(req, res) => {
 
 
 // Routes modules
-
+app.use("/api/v1/users", userRoutes)
 
 // Error middleware
-
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 8000
 
