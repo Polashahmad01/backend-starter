@@ -9,12 +9,13 @@ import asyncHandler from "express-async-handler"
 import jwt from "jsonwebtoken"
 
 // Import files
-
+import { connectDB } from "../config/dbConfig.js"
 
 // Load env vars
 dotenv.config()
 
 // Connect to DB
+connectDB()
 
 const app = express()
 

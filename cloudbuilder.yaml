@@ -13,4 +13,4 @@ steps:
       - "--region=asia-south1"
       - "--allow-unauthenticated"
       - "--set-secrets"
-      - "NODE_ENV=backend-starter-node-env:latest, JWT_SECRET=backend-starter-jwt-secret:latest"
+      - "NODE_ENV=backend-starter-node-env:latest, JWT_SECRET=backend-starter-jwt-secret:latest, MONGO_URI=backend-starter-mongo-uri:latest"
