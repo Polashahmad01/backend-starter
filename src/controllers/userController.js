@@ -1,30 +1,14 @@
 import asyncHandler from "express-async-handler"
-import jwt from "jsonwebtoken"
 
 import User from "../models/user.js"
 import ErrorResponse from "../utils/errorResponse.js"
+import generateJwtToken from "../helpers/generateJwtToken.js"
 
 // @desc    Register a new user
 // route    POST /api/v1/users
 // @access  Public
 const registerUser = asyncHandler(async(req, res, next) => {
   try {
-
-    const generateJwtToken = (res, userId) => {
-      const token = jwt.sign({ userId}, process.env.JWT_SECRET, {
-        expiresIn: "30d"
-      })
-    
-      res.cookie("jwt", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
-        maxAge: 30 * 24 * 60 * 60 * 1000
-      })  
-    
-      return token
-    }
-
     const { name, email, password, isVerified } = req.body
 
     const existingUser = await User.findOne({ email })
