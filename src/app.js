@@ -45,6 +45,10 @@ app.use(cors({
 }))
 
 // Routes
+app.get("/", (req, res) => {
+  res.status(200).json({ success: true, data: "Server is ready." })
+})
+
 app.post("/api/v1/users", asyncHandler( async(req, res) => {
   try {
     const token = jwt.sign({ name: "Polash Ahmad", age: 23 }, process.env.JWT_SECRET, {
