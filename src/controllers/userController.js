@@ -1,4 +1,5 @@
 import asyncHandler from "express-async-handler"
+import jwt from "jsonwebtoken"
 
 import User from "../models/user.js"
 import ErrorResponse from "../utils/errorResponse.js"
@@ -8,6 +9,22 @@ import ErrorResponse from "../utils/errorResponse.js"
 // @access  Public
 const registerUser = asyncHandler(async(req, res, next) => {
   try {
+
+    const generateJwtToken = (res, userId) => {
+      const token = jwt.sign({ userId}, process.env.JWT_SECRET, {
+        expiresIn: "30d"
+      })
+    
+      res.cookie("jwt", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== "development",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000
+      })
+    
+      return token
+    }
+
     const { name, email, password, isVerified } = req.body
 
     const existingUser = await User.findOne({ email })
@@ -17,6 +34,8 @@ const registerUser = asyncHandler(async(req, res, next) => {
 
     const newUser = await User.create({ name, email, password, isVerified })
     const formattedNewUser = { id: newUser._id, name: newUser.name, email: newUser.email, isVerified: newUser.isVerified }
+
+    generateJwtToken(res, formattedNewUser.id)
 
     res.status(201).json({ success: true, data: formattedNewUser })
   } catch(error) {
