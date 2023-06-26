@@ -1,0 +1,16 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/english-batayon/backend-starter", "."]
+  - name: "gcr.io/cloud-builders/docker"
+    args: "push", "gcr.io/english-batayon/backend-starter"
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "backend-starter-service"
+      - "--image=gcr.io/english-batayon/backend-starter"
+      - "--platform=managed"
+      - "--region=asia-south1"
+      - "--allow-unauthenticated"
+      - "--set-secrets"
+      - "NODE_ENV=backend-starter-node-env:latest, JWT_SECRET=backend-starter-jwt-secret:latest"
