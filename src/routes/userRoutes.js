@@ -3,8 +3,10 @@ const router = express.Router()
 
 import {
   registerUser,
-  authUserOrLogin
+  authUserOrLogin,
+  logoutUser
 } from "../controllers/userController.js"
+import { protect } from "../middleware/authHandler.js"
 
 // @desc    Register a new user
 // route    POST /api/v1/users
@@ -15,5 +17,10 @@ router.post("/", registerUser)
 // route    POST /api/v1/users/auth
 // @access  Public
 router.post("/auth", authUserOrLogin)
+
+// @desc    Logout user
+// route    POST /api/v1/users/logout
+// @access  Private
+router.post("/logout", protect, logoutUser)
 
 export default router

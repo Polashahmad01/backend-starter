@@ -46,7 +46,20 @@ const authUserOrLogin = asyncHandler(async(req, res, next) => {
   }
 })
 
+// @desc    Logout user
+// route    POST /api/v1/users/logout
+// @access  Private
+const logoutUser = asyncHandler( async (req, res, next) => {
+  try {
+    res.cookie("jwt", "", { httpOnly: true, expires: new Date(0)})
+    res.status(200).json({ success: true, message: "Logged out successfully." })
+  } catch(error) {
+    return next(new ErrorResponse(error.message || "Internal server error", 500))
+  }
+})
+
 export {
   registerUser,
-  authUserOrLogin
+  authUserOrLogin,
+  logoutUser
 }
