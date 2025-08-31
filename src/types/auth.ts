@@ -1,3 +1,39 @@
+import { Document } from "mongoose";
+
+// User roles for RBAC
+export enum UserRole {
+  USER = "user",
+  ADMIN = "admin"
+}
+
+// Base interfaces
+export interface IUser extends Document {
+  _id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  isEmailVerified: boolean;
+  emailVerificationToken?: string | null;
+  emailVerificationExpires?: Date | null;
+  passwordResetToken?: string | null;
+  passwordResetExpires?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IRefreshToken extends Document {
+  _id: string;
+  token: string;
+  userId: string;
+  expiresAt: Date;
+  isRevoked: boolean;
+  revokedAt?: Date;
+  revokedReason?: string;
+  createdAt: Date;
+}
+
 // Configuration types
 export interface AppConfig {
   port: number;
@@ -15,7 +51,33 @@ export interface AppConfig {
   },
   cors: {
     origin: string | string[];
+  },
+  jwt: {
+    accessSecret: string;
+    refreshSecret: string;
+    accessExpiresIn: string;
+    refreshExpiresIn: string;
+  },
+  app: {
+    name: string;
+    url: string;
+    frontendUrl: string;
+  },
+  email: {
+    from: string;
+    service: string;
+    user: string;
+    password: string;
   }
+}
+
+// Service interfaces
+export interface IAuthService {
+  register(data: RegisterRequest): Promise<AuthResponse>;
+}
+
+export interface IEmailService {
+  sendVerificationEmail(email: string, token: string, firstName: string): Promise<void>
 }
 
 // Error types
@@ -72,4 +134,27 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+}
+
+export interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: UserRole;
+    isEmailVerified: boolean;
+  },
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  }
+}
+
+export interface TokenPayload {
+  userId: string;
+  email: string;
+  role: UserRole;
+  iat?: number;
+  exp?: number;
 }
