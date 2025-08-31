@@ -1,5 +1,7 @@
 import express from "express";
 import colors from "colors";
+import { config } from "./config";
+import { connectDatabase, disconnectDatabase } from "./utils/database";
 
 // Create express application
 export const createApp = async (): Promise<express.Application> => {
@@ -24,16 +26,17 @@ export const createApp = async (): Promise<express.Application> => {
 export const startServer = async (): Promise<void> => {
   try {
     // Connect to database
+    await connectDatabase();
 
     // Create app
     const app = await createApp();
 
     // Start server
-    const server = app.listen(3000, () => {
-      console.log(colors.bgYellow.white.bold("🚀 Server running on port: 3000"));
-      console.log(colors.bgYellow.white.bold("📝 Environment: development"));
-      console.log(colors.bgYellow.white.bold("🔗 BASE API URL: http://localhost:3000"));
-      console.log(colors.bgYellow.white.bold("📚 Health Check:: http://localhost:3000/api/v1/health"));
+    const server = app.listen(config.port, () => {
+      console.log(colors.bgYellow.white.bold(`🚀 Server running on port: ${config.port}`));
+      console.log(colors.bgYellow.white.bold(`📝 Environment: ${config.nodeEnv}`));
+      console.log(colors.bgYellow.white.bold(`🔗 BASE API URL: ${config.baseApiUrl}`));
+      console.log(colors.bgYellow.white.bold(`📚 Health Check:: ${config.healthCheckApiUrl}`));
     });
 
     // Graceful shutdown
@@ -45,7 +48,7 @@ export const startServer = async (): Promise<void> => {
 
         try {
           // Close database connection
-          // await disconnectDatabase();
+          await disconnectDatabase();
           console.log(colors.bgRed.white.bold("Database connection closed."));
           process.exit(0);
 
