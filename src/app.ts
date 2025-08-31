@@ -2,8 +2,14 @@ import express, { Request, Response } from "express";
 import colors from "colors";
 import cookieParser from "cookie-parser";
 import { config } from "./config";
-import { connectDatabase, disconnectDatabase } from "./utils/database";
-import { notFoundHandler } from "./middleware";
+import {
+  connectDatabase,
+  disconnectDatabase
+} from "./utils/database";
+import { 
+  errorHandler, 
+  notFoundHandler
+} from "./middleware";
 
 // Create express application
 export const createApp = async (): Promise<express.Application> => {
@@ -30,6 +36,7 @@ export const createApp = async (): Promise<express.Application> => {
   app.use(notFoundHandler);
 
   // Global error handler
+  app.use(errorHandler);
 
   return app;
 }
