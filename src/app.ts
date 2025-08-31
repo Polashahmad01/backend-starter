@@ -9,6 +9,7 @@ import {
 import { 
   errorHandler, 
   notFoundHandler,
+  securityHeaders,
   corsOptions
 } from "./middleware";
 
@@ -20,6 +21,7 @@ export const createApp = async (): Promise<express.Application> => {
   // app.set("trust proxy", 1);
 
   // Security middleware
+  app.use(securityHeaders);
   app.use(corsOptions);
 
   // Body parsing middleware
