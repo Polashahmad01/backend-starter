@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import colors from "colors";
+import cookieParser from "cookie-parser";
 import { config } from "./config";
 import { connectDatabase, disconnectDatabase } from "./utils/database";
 import { notFoundHandler } from "./middleware";
@@ -13,6 +14,9 @@ export const createApp = async (): Promise<express.Application> => {
   // Security middleware
 
   // Body parsing middleware
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  app.use(cookieParser(config.security.cookieSecret));
 
   // API routes
   app.get("/", (req: Request, res: Response) => {

@@ -8,5 +8,9 @@ export interface AppConfig {
     mongoUserName: string;
     mongoPassword: string;
     mongoDbName: string;
+  },
+  security: {
+    bcryptRounds: number;
+    cookieSecret: string;
   }
 }

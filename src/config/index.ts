@@ -13,5 +13,9 @@ export const config: AppConfig = {
     mongoUserName: process.env.MONGO_USERNAME || "DEFAULT_USERNAME",
     mongoPassword: process.env.MONGO_PASSWORD || "DEFAULT_PASSWORD",
     mongoDbName: process.env.MONGO_DB_NAME || "DEFAULT_DB_NAME"
+  },
+  security: {
+    bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || "12", 10),
+    cookieSecret: process.env.COOKIE_SECRET || "YOUR_SUPER_SECRET_COOKIE_KEY"
   }
 }
