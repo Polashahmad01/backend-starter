@@ -1,7 +1,8 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import colors from "colors";
 import { config } from "./config";
 import { connectDatabase, disconnectDatabase } from "./utils/database";
+import { notFoundHandler } from "./middleware";
 
 // Create express application
 export const createApp = async (): Promise<express.Application> => {
@@ -14,8 +15,15 @@ export const createApp = async (): Promise<express.Application> => {
   // Body parsing middleware
 
   // API routes
+  app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({
+      success: true,
+      message: "Welcome to the Backend Starter API"
+    });
+  });
 
   // 404 handler
+  app.use(notFoundHandler);
 
   // Global error handler
 
