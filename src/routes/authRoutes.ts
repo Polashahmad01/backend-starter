@@ -1,4 +1,8 @@
 import { Router, Request, Response } from "express";
+import { 
+    validate,
+    registerSchema
+} from "../middleware";
 
 const router = Router();
 
@@ -9,7 +13,7 @@ const router = Router();
  * @desc    Register a new user
  * @access  Public
  */
-router.post("/register", (req: Request, res: Response) => {
+router.post("/register", validate(registerSchema), (req: Request, res: Response) => {
   res.status(201).json({
     success: true,
     message: "User registered successfully"
