@@ -158,3 +158,7 @@ export interface TokenPayload {
   iat?: number;
   exp?: number;
 }
+
+export interface VerifyEmailRequest {
+  token: string;
+}

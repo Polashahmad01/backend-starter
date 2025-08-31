@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RegisterRequest } from "../types/auth";
+import { RegisterRequest, VerifyEmailRequest } from "../types/auth";
 import { authService } from "../services";
 
 /**
@@ -29,6 +29,25 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         accessToken: result.tokens.accessToken
       }
     });
+
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
+ * Verify email address
+ */
+export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token }: VerifyEmailRequest = req.body;
+
+    await authService.verifyEmail(token);
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully."
+    })
 
   } catch(error) {
     next(error);

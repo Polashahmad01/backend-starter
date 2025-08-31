@@ -16,6 +16,10 @@ export const registerSchema = z.object({
     .max(50, "Last name must be less than 50 characters")
 });
 
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, "Verification token is required")
+});
+
 // Validation middleware factory
 export const validate = (schema: z.ZodType<any>) => {
   return (req: Request, res: Response, next: NextFunction) => {

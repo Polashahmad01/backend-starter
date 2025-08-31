@@ -7,7 +7,8 @@ import {
   AuthResponse,
   IAuthService,
   RegisterRequest,
-  AuthError
+  AuthError,
+  NotFoundError
 } from "../types/auth";
 import { 
   hashPassword,
@@ -95,6 +96,34 @@ export class AuthService implements IAuthService {
         throw error;
       }
       throw new AuthError("Registration failed", 500, "REGISTRATION_FAILED");
+    }
+  }
+
+  /**
+   * Verify email address
+   */
+  async verifyEmail(token: string): Promise<void> {
+    try {
+      const user = await User.findOne({
+        emailVerificationToken: token,
+        emailVerificationExpires: { $gt: new Date() }
+      });
+
+      if(!user) {
+        throw new NotFoundError("Invalid or expired verification token.");
+      }
+
+      user.isEmailVerified = true;
+      user.emailVerificationToken = null;
+      user.emailVerificationExpires = null;
+
+      await user.save();
+
+    } catch(error) {
+      if(error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Email verification failed", 500, "EMAIL_VERIFICATION_FAILED");
     }
   }
 }
