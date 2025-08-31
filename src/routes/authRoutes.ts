@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { 
     validate,
-    registerSchema
+    registerSchema,
+    verifyEmailSchema
 } from "../middleware";
-import { register } from "../controllers";
+import {
+  register,
+  verifyEmail
+} from "../controllers";
 
 const router = Router();
 
@@ -15,5 +19,12 @@ const router = Router();
  * @access  Public
  */
 router.post("/register", validate(registerSchema), register);
+
+/**
+ * @route   POST /api/auth/verify-email
+ * @desc    Verify email address
+ * @access  Public
+ */
+router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
 
 export default router;
