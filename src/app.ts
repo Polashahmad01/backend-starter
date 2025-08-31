@@ -13,6 +13,7 @@ import {
   corsOptions,
   generalRateLimit
 } from "./middleware";
+import routes from "./routes";
 
 // Create express application
 export const createApp = async (): Promise<express.Application> => {
@@ -38,6 +39,8 @@ export const createApp = async (): Promise<express.Application> => {
       message: "Welcome to the Backend Starter API"
     });
   });
+
+  app.use("/api", routes);
 
   // 404 handler
   app.use(notFoundHandler);
