@@ -12,6 +12,9 @@ export interface AppConfig {
   security: {
     bcryptRounds: number;
     cookieSecret: string;
+  },
+  cors: {
+    origin: string | string[];
   }
 }
 

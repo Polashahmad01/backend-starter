@@ -17,5 +17,9 @@ export const config: AppConfig = {
   security: {
     bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || "12", 10),
     cookieSecret: process.env.COOKIE_SECRET || "YOUR_SUPER_SECRET_COOKIE_KEY"
+  },
+  cors: {
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map(origin => origin.trim()) : 
+    ["http://localhost:3000"]
   }
 }
