@@ -1,5 +1,6 @@
 import cors from "cors";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { config } from "../config";
 
 // CORS configuration
@@ -39,4 +40,19 @@ export const securityHeaders = helmet({
     includeSubDomains: true,
     preload: true
   }
+});
+
+// General rate limiting for API endpoints
+export const generalRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100,
+  message: {
+    success: false,
+    error: {
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many requests, Please try again later"
+    }
+  },
+  standardHeaders: true,
+  legacyHeaders: false
 });

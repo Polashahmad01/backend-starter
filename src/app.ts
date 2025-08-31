@@ -10,7 +10,8 @@ import {
   errorHandler, 
   notFoundHandler,
   securityHeaders,
-  corsOptions
+  corsOptions,
+  generalRateLimit
 } from "./middleware";
 
 // Create express application
@@ -23,6 +24,7 @@ export const createApp = async (): Promise<express.Application> => {
   // Security middleware
   app.use(securityHeaders);
   app.use(corsOptions);
+  app.use(generalRateLimit);
 
   // Body parsing middleware
   app.use(express.json({ limit: "10mb" }));
