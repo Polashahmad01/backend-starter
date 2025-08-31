@@ -65,3 +65,11 @@ export class TooManyRequestsError extends AuthError {
     this.name = "TooManyRequestsError";
   }
 }
+
+// Request, Response types
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
