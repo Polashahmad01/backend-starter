@@ -37,8 +37,28 @@ export const startServer = async (): Promise<void> => {
     });
 
     // Graceful shutdown
+    const gracefulShutdown = (signal: string) => {
+      console.log(colors.bgRed.white.bold(`\n${signal} received. Starting graceful shutdown...`));
+
+      server.close(async () => {
+        console.log(colors.bgRed.white.bold("HTTP server closed."));
+
+        try {
+          // Close database connection
+          // await disconnectDatabase();
+          console.log(colors.bgRed.white.bold("Database connection closed."));
+          process.exit(0);
+
+        } catch(error) {
+          console.error(colors.bgRed.white.bold("Error during graceful shutdown: "), error);
+          process.exit(1);
+        }
+      });
+    }
 
     // Listen for termination signals
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
   } catch(error) {
     console.error(colors.bgRed.white.bold("❌ Failed to start server: "), error);
