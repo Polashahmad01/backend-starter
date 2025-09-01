@@ -5,7 +5,8 @@ import {
     verifyEmailSchema,
     loginSchema,
     forgotPasswordSchema,
-    resetPasswordSchema
+    resetPasswordSchema,
+    refreshTokenSchema
 } from "../middleware";
 import {
   register,
@@ -13,7 +14,8 @@ import {
   login,
   logout,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  refresh
 } from "../controllers";
 
 const router = Router();
@@ -61,5 +63,12 @@ router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
  * @access  Public
  */
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
+
+/**
+ * @route   POST /api/auth/refresh
+ * @desc    Refresh access token
+ * @access  Public
+ */
+router.post("/refresh", validate(refreshTokenSchema), refresh);
 
 export default router;

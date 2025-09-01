@@ -17,7 +17,7 @@ import {
   generateSecureToken,
   comparePassword
 } from "../utils/password";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt";
 import { emailService } from "./emailService";
 
 export class AuthService implements IAuthService {
@@ -273,6 +273,78 @@ export class AuthService implements IAuthService {
         throw error;
       }
       throw new AuthError("Password reset failed", 500, "PASSWORD_RESET_FAILED");
+    }
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  async refreshToken(refreshTokenValue: string): Promise<AuthResponse> {
+    try {
+      // Verify refresh token
+      const payload = verifyRefreshToken(refreshTokenValue);
+
+      // Find refresh token in database
+      const refreshToken = await RefreshToken.findOne({ token: refreshTokenValue, isRevoked: false });
+      if(!refreshToken || !refreshToken.isValid()) {
+        throw new UnauthorizedError("Invalid refresh token");
+      }
+
+      // if(!refreshToken || (refreshToken.isValid && !refreshToken.isValid())) { //Might be an error
+      //   throw new UnauthorizedError("Invalid refresh token");
+      // }
+
+      // Find user
+      const user = await User.findById(payload.userId);
+      if(!user) {
+        throw new UnauthorizedError("User not found or account");
+      }
+
+      // Revoke old refresh token
+      await refreshToken.revoke("token_rotation");
+
+      // if(refreshToken.revoke) { // Might be an error
+      //   await refreshToken.revoke("token_rotation");
+      // }
+
+      // Generate new tokens
+      const tokenPayload = {
+        userId: user._id,
+        email: user.email,
+        role: user.role
+      }
+
+      const accessToken = generateAccessToken(tokenPayload);
+      const newRefreshTokenValue = generateRefreshToken(tokenPayload);
+
+      // Store new refresh token
+      const newRefreshToken = new RefreshToken({
+        token: newRefreshTokenValue,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      });
+
+      await newRefreshToken.save();
+
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
+        },
+        tokens: {
+          accessToken,
+          refreshToken: newRefreshTokenValue
+        }
+      }
+    } catch(error) {
+      if(error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Token refresh failed", 500, "TOKEN_REFRESH_FAILED");
     }
   }
 }

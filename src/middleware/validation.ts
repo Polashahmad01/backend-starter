@@ -36,6 +36,10 @@ export const resetPasswordSchema = z.object({
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
 });
 
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1, "Refresh token is required")
+});
+
 // Validation middleware factory
 export const validate = (schema: z.ZodType<any>) => {
   return (req: Request, res: Response, next: NextFunction) => {
