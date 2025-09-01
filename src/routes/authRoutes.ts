@@ -8,7 +8,8 @@ import {
 import {
   register,
   verifyEmail,
-  login
+  login,
+  logout
 } from "../controllers";
 
 const router = Router();
@@ -35,5 +36,12 @@ router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
  * @access  Public
  */
 router.post("/login", validate(loginSchema), login);
+
+/**
+ * @route   POST /api/auth/logout
+ * @desc    Logout user
+ * @access  Public
+ */
+router.post("/logout", logout);
 
 export default router;
