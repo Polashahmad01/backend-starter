@@ -3,13 +3,15 @@ import {
     validate,
     registerSchema,
     verifyEmailSchema,
-    loginSchema
+    loginSchema,
+    forgotPasswordSchema
 } from "../middleware";
 import {
   register,
   verifyEmail,
   login,
-  logout
+  logout,
+  forgotPassword
 } from "../controllers";
 
 const router = Router();
@@ -43,5 +45,12 @@ router.post("/login", validate(loginSchema), login);
  * @access  Public
  */
 router.post("/logout", logout);
+
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Send password reset email
+ * @access  Public
+ */
+router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
 
 export default router;

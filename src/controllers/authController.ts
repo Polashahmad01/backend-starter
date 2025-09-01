@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { 
   RegisterRequest,
   VerifyEmailRequest,
-  LoginRequest
+  LoginRequest,
+  ForgotPasswordRequest
 } from "../types/auth";
 import { authService } from "../services";
 
@@ -111,6 +112,24 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
       message: "Logout successful."
     });
 
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
+ * Send password reset email
+ */
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email }: ForgotPasswordRequest = req.body;
+
+    await authService.forgotPassword(email);
+
+    res.status(200).json({
+      success: true,
+      message: "If an account with that email exists, a password reset link has been sent."
+    });
   } catch(error) {
     next(error);
   }

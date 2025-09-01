@@ -167,3 +167,7 @@ export interface TokenPayload {
 export interface VerifyEmailRequest {
   token: string;
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
