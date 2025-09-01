@@ -8,11 +8,14 @@ import {
   IAuthService,
   RegisterRequest,
   AuthError,
-  NotFoundError
+  NotFoundError,
+  LoginRequest,
+  UnauthorizedError
 } from "../types/auth";
 import { 
   hashPassword,
-  generateSecureToken
+  generateSecureToken,
+  comparePassword
 } from "../utils/password";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { emailService } from "./emailService";
@@ -124,6 +127,66 @@ export class AuthService implements IAuthService {
         throw error;
       }
       throw new AuthError("Email verification failed", 500, "EMAIL_VERIFICATION_FAILED");
+    }
+  }
+
+  /**
+   * Login user with email and password
+   */
+  async login(data: LoginRequest): Promise<AuthResponse> {
+    try {
+      // Find user by email
+      const user = await User.findOne({ email: data.email });
+      if(!user) {
+        throw new UnauthorizedError("Invalid credentials");
+      }
+
+      // Verify password
+      const isPasswordValid = await comparePassword(data.password, user.password);
+      if(!isPasswordValid) {
+        throw new UnauthorizedError("Invalid credentials");
+      }
+
+      // Generate tokens
+      const tokenPayload = {
+        userId: user._id,
+        email: user.email,
+        role: user.role
+      }
+
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshTokenValue = generateRefreshToken(tokenPayload);
+
+      // Store refresh token
+      const refreshToken = new RefreshToken({
+        token: refreshTokenValue,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      });
+
+      await refreshToken.save();
+
+      // Return AuthResponse
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
+        },
+        tokens: {
+          accessToken,
+          refreshToken: refreshTokenValue
+        }
+      }
+
+    } catch(error) {
+      if(error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Login failed", 500, "LOGIN_FAILED");
     }
   }
 }

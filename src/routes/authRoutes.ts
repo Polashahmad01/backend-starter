@@ -2,11 +2,13 @@ import { Router } from "express";
 import { 
     validate,
     registerSchema,
-    verifyEmailSchema
+    verifyEmailSchema,
+    loginSchema
 } from "../middleware";
 import {
   register,
-  verifyEmail
+  verifyEmail,
+  login
 } from "../controllers";
 
 const router = Router();
@@ -26,5 +28,12 @@ router.post("/register", validate(registerSchema), register);
  * @access  Public
  */
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
+
+/**
+ * @route   POST /api/auth/login
+ * @desc    Login user
+ * @access  Public
+ */
+router.post("/login", validate(loginSchema), login);
 
 export default router;
