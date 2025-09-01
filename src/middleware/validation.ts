@@ -37,8 +37,8 @@ export const resetPasswordSchema = z.object({
 });
 
 export const refreshTokenSchema = z.object({
-  refreshToken: z.string().min(1, "Refresh token is required").optional()
-});
+  refreshToken: z.string().optional()
+}).or(z.object({}));
 
 // Validation middleware factory
 export const validate = (schema: z.ZodType<any>) => {
