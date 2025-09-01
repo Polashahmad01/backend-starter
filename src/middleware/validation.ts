@@ -25,6 +25,10 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required")
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.email("Invalid email format").toLowerCase()
+});
+
 // Validation middleware factory
 export const validate = (schema: z.ZodType<any>) => {
   return (req: Request, res: Response, next: NextFunction) => {
