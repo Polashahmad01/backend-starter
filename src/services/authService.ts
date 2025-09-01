@@ -17,7 +17,7 @@ import {
   generateSecureToken,
   comparePassword
 } from "../utils/password";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt";
 import { emailService } from "./emailService";
 
 export class AuthService implements IAuthService {
@@ -273,6 +273,85 @@ export class AuthService implements IAuthService {
         throw error;
       }
       throw new AuthError("Password reset failed", 500, "PASSWORD_RESET_FAILED");
+    }
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  async refreshToken(refreshTokenValue: string): Promise<AuthResponse> {
+    try {
+      // console.log(colors.bgBlue.white.bold("🔍 REFRESH TOKEN DEBUG:"), "Token received:", refreshTokenValue.substring(0, 50) + "...");
+      
+      // First, find refresh token in database to ensure it exists and is valid
+      const refreshToken = await RefreshToken.findOne({ token: refreshTokenValue, isRevoked: false });
+      // console.log(colors.bgBlue.white.bold("🔍 DATABASE CHECK:"), "Token found:", !!refreshToken, "Is valid:", refreshToken?.isValid());
+      
+      if(!refreshToken || !refreshToken.isValid()) {
+        // console.log(colors.bgRed.white.bold("❌ VALIDATION FAILED:"), "Token not found or invalid");
+        throw new UnauthorizedError("Invalid or expired refresh token");
+      }
+
+      // Then verify the JWT token structure and expiration
+      const payload = verifyRefreshToken(refreshTokenValue);
+      // console.log(colors.bgBlue.white.bold("🔍 JWT VERIFICATION:"), "Payload:", payload);
+
+      // Find user
+      const user = await User.findById(payload.userId);
+      if(!user) {
+        // console.log(colors.bgRed.white.bold("❌ USER NOT FOUND:"), payload.userId);
+        throw new UnauthorizedError("User not found");
+      }
+
+      // Ensure the token belongs to the correct user
+      if(refreshToken.userId !== user._id.toString()) {
+        // console.log(colors.bgRed.white.bold("❌ USER MISMATCH:"), "Token user:", refreshToken.userId, "Payload user:", user._id.toString());
+        throw new UnauthorizedError("Token user mismatch");
+      }
+
+      // console.log(colors.bgGreen.white.bold("✅ ALL VALIDATIONS PASSED"));
+
+      // Revoke old refresh token
+      await refreshToken.revoke("token_rotation");
+
+      // Generate new tokens
+      const tokenPayload = {
+        userId: user._id,
+        email: user.email,
+        role: user.role
+      }
+
+      const accessToken = generateAccessToken(tokenPayload);
+      const newRefreshTokenValue = generateRefreshToken(tokenPayload);
+
+      // Store new refresh token
+      const newRefreshToken = new RefreshToken({
+        token: newRefreshTokenValue,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      });
+
+      await newRefreshToken.save();
+
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
+        },
+        tokens: {
+          accessToken,
+          refreshToken: newRefreshTokenValue
+        }
+      }
+    } catch(error) {
+      if(error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Token refresh failed", 500, "TOKEN_REFRESH_FAILED");
     }
   }
 }

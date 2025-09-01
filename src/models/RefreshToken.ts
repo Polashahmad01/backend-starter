@@ -49,8 +49,10 @@ refreshTokenSchema.index({ expiresAt: 1, isRevoked: 1 });
 // Add methods to the interface
 declare module "mongoose" {
   interface Document {
-    isValid?(): boolean;
-    revoke?(reason: string): Promise<any>;
+    // isValid?(): boolean;
+    isValid(): boolean;
+    // revoke?(reason: string): Promise<any>;
+    revoke(reason: string): Promise<any>;
   }
 }
 
