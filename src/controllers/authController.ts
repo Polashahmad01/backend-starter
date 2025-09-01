@@ -163,7 +163,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     // Try to get refresh token from cookie first, then from body
     const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
     if(!refreshTokenValue) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         error: {
           code: "REFRESH_TOKEN_REQUIRED",
