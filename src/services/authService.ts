@@ -189,6 +189,22 @@ export class AuthService implements IAuthService {
       throw new AuthError("Login failed", 500, "LOGIN_FAILED");
     }
   }
+
+  /**
+   * Logout user by revoking refresh token
+   */
+  async logout(refreshTokenValue: string): Promise<void> {
+    try {
+      const refreshToken = await RefreshToken.findOne({ token: refreshTokenValue });
+
+      if(refreshToken && refreshToken.revoke) {
+        await refreshToken.revoke("logout");
+      }
+
+    } catch(error) {
+      console.error(colors.bgRed.white.bold("Logout error: "), error);
+    }
+  }
 }
 
 // Export singleton instance
