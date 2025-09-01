@@ -4,22 +4,20 @@ import { TokenPayload, UnauthorizedError } from "../types/auth";
 
 // Generate an access token
 export const generateAccessToken = (payload: Omit<TokenPayload, "iat" | "exp">): string => {
-  const signOptions: SignOptions = {
-    expiresIn: parseInt(config.jwt.accessExpiresIn, 10),
+  return jwt.sign(payload, config.jwt.accessSecret, {
+    expiresIn: config.jwt.accessExpiresIn,
     issuer: config.app.name,
     audience: config.app.url
-  }  
-  return jwt.sign(payload, config.jwt.accessSecret, signOptions);
+  } as SignOptions);
 }
 
 // Generate a refresh token
 export const generateRefreshToken = (payload: Omit<TokenPayload, "iat" | "exp">): string => {
-  const signOptions: SignOptions = {
-    expiresIn: parseInt(config.jwt.refreshExpiresIn, 10),
+  return jwt.sign(payload, config.jwt.refreshSecret, {
+    expiresIn: config.jwt.refreshExpiresIn,
     issuer: config.app.name,
     audience: config.app.url
-  }
-  return jwt.sign(payload, config.jwt.refreshSecret, signOptions);
+  } as SignOptions);
 }
 
 /**
