@@ -3,7 +3,8 @@ import {
   RegisterRequest,
   VerifyEmailRequest,
   LoginRequest,
-  ForgotPasswordRequest
+  ForgotPasswordRequest,
+  ResetPasswordRequest
 } from "../types/auth";
 import { authService } from "../services";
 
@@ -130,6 +131,25 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       success: true,
       message: "If an account with that email exists, a password reset link has been sent."
     });
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
+ * Reset password
+ */
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, password }: ResetPasswordRequest = req.body;
+
+    await authService.resetPassword(token, password);
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully."
+    });
+
   } catch(error) {
     next(error);
   }

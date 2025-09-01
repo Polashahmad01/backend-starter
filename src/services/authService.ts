@@ -240,6 +240,41 @@ export class AuthService implements IAuthService {
       throw new AuthError("Password reset request failed", 500, "PASSWORD_RESET_FAILED");
     }
   }
+
+  /**
+   * Reset password using reset token
+   */
+  async resetPassword(token: string, password: string): Promise<void> {
+    try {
+      const user = await User.findOne({
+        passwordResetToken: token,
+        passwordResetExpires: { $gt: new Date() }
+      });
+
+      if(!user) {
+        throw new NotFoundError("Invalid or expired reset token");
+      }
+
+      const hashedPassword = await hashPassword(password);
+      user.password = hashedPassword;
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+
+      await user.save();
+
+      // Revoke all refresh tokens for security
+      await RefreshToken.updateMany(
+        { userId: user._id, isRevoked: false },
+        { isRevoked: true, revokedAt: new Date(), revokedReason: "password_reset" }
+      );
+
+    } catch(error) {
+      if(error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Password reset failed", 500, "PASSWORD_RESET_FAILED");
+    }
+  }
 }
 
 // Export singleton instance
