@@ -20,6 +20,11 @@ export const verifyEmailSchema = z.object({
   token: z.string().min(1, "Verification token is required")
 });
 
+export const loginSchema = z.object({
+  email: z.email("Invalid email format").toLowerCase(),
+  password: z.string().min(1, "Password is required")
+});
+
 // Validation middleware factory
 export const validate = (schema: z.ZodType<any>) => {
   return (req: Request, res: Response, next: NextFunction) => {
