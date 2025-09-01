@@ -354,6 +354,36 @@ export class AuthService implements IAuthService {
       throw new AuthError("Token refresh failed", 500, "TOKEN_REFRESH_FAILED");
     }
   }
+
+  /**
+   * Get user profile by user ID
+   */
+  async getUserProfile(userId: string) {
+    try {
+      const user = await User.findById(userId).select("-password");
+      
+      if(!user) {
+        throw new NotFoundError("User not found");
+      }
+
+      return {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      };
+
+    } catch(error) {
+      if(error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Failed to get user profile", 500, "GET_PROFILE_FAILED");
+    }
+  }
 }
 
 // Export singleton instance

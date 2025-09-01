@@ -4,7 +4,8 @@ import {
   VerifyEmailRequest,
   LoginRequest,
   ForgotPasswordRequest,
-  ResetPasswordRequest
+  ResetPasswordRequest,
+  AuthenticateRequest
 } from "../types/auth";
 import { authService } from "../services";
 
@@ -192,6 +193,37 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
       }
     })
 
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
+ * Get current user profile
+ */
+export const getProfile = async (req: AuthenticateRequest, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Authentication required"
+        }
+      });
+    }
+
+    // Fetch complete user profile from database
+    const user = await authService.getUserProfile(userId);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user
+      }
+    })
   } catch(error) {
     next(error);
   }

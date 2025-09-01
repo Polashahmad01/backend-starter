@@ -2,4 +2,4 @@
 export * from "./errorHandler";
 export * from "./security";
 export * from "./validation";
-
+export * from "./auth";
