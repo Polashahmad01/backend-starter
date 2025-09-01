@@ -6,7 +6,8 @@ import {
     loginSchema,
     forgotPasswordSchema,
     resetPasswordSchema,
-    refreshTokenSchema
+    refreshTokenSchema,
+    authenticate
 } from "../middleware";
 import {
   register,
@@ -15,7 +16,8 @@ import {
   logout,
   forgotPassword,
   resetPassword,
-  refresh
+  refresh,
+  getProfile
 } from "../controllers";
 
 const router = Router();
@@ -70,5 +72,12 @@ router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
  * @access  Public
  */
 router.post("/refresh", validate(refreshTokenSchema), refresh);
+
+/**
+ * @route   GET /api/auth/profile
+ * @desc    Get current user profile
+ * @access  Private
+ */
+router.get("/profile", authenticate, getProfile);
 
 export default router;

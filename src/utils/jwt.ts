@@ -42,3 +42,41 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
     throw new UnauthorizedError("Token verification failed");
   }
 }
+
+/**
+ * Extract token from Authorization header
+ */
+export const extractTokenFromHeader = (authHeader: string | undefined): string => {
+  if(!authHeader) {
+    throw new UnauthorizedError("Authorization header missing");
+  }
+
+  const parts = authHeader.split(" ");
+  if(parts.length !== 2 || parts[0] !== "Bearer") {
+    throw new UnauthorizedError("Invalid authorization header format");
+  }
+
+  return parts[1]!;
+}
+
+/**
+ * Verify an access token
+ */
+export const verifyAccessToken = (token: string): TokenPayload => {
+  try {
+    return jwt.verify(token, config.jwt.accessSecret, {
+      issuer: config.app.name,
+      audience: config.app.url
+    }) as TokenPayload;
+
+  } catch(error) {
+    if(error instanceof JsonWebTokenError) {
+      throw new UnauthorizedError("Invalid access token");
+    }
+    if(error instanceof TokenExpiredError) {
+      throw new UnauthorizedError("Access token expired");
+    }
+
+    throw new UnauthorizedError("Token verification failed");
+  }
+}
