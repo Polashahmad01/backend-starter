@@ -281,31 +281,38 @@ export class AuthService implements IAuthService {
    */
   async refreshToken(refreshTokenValue: string): Promise<AuthResponse> {
     try {
-      // Verify refresh token
-      const payload = verifyRefreshToken(refreshTokenValue);
-
-      // Find refresh token in database
+      // console.log(colors.bgBlue.white.bold("🔍 REFRESH TOKEN DEBUG:"), "Token received:", refreshTokenValue.substring(0, 50) + "...");
+      
+      // First, find refresh token in database to ensure it exists and is valid
       const refreshToken = await RefreshToken.findOne({ token: refreshTokenValue, isRevoked: false });
+      // console.log(colors.bgBlue.white.bold("🔍 DATABASE CHECK:"), "Token found:", !!refreshToken, "Is valid:", refreshToken?.isValid());
+      
       if(!refreshToken || !refreshToken.isValid()) {
-        throw new UnauthorizedError("Invalid refresh token");
+        // console.log(colors.bgRed.white.bold("❌ VALIDATION FAILED:"), "Token not found or invalid");
+        throw new UnauthorizedError("Invalid or expired refresh token");
       }
 
-      // if(!refreshToken || (refreshToken.isValid && !refreshToken.isValid())) { //Might be an error
-      //   throw new UnauthorizedError("Invalid refresh token");
-      // }
+      // Then verify the JWT token structure and expiration
+      const payload = verifyRefreshToken(refreshTokenValue);
+      // console.log(colors.bgBlue.white.bold("🔍 JWT VERIFICATION:"), "Payload:", payload);
 
       // Find user
       const user = await User.findById(payload.userId);
       if(!user) {
-        throw new UnauthorizedError("User not found or account");
+        // console.log(colors.bgRed.white.bold("❌ USER NOT FOUND:"), payload.userId);
+        throw new UnauthorizedError("User not found");
       }
+
+      // Ensure the token belongs to the correct user
+      if(refreshToken.userId !== user._id.toString()) {
+        // console.log(colors.bgRed.white.bold("❌ USER MISMATCH:"), "Token user:", refreshToken.userId, "Payload user:", user._id.toString());
+        throw new UnauthorizedError("Token user mismatch");
+      }
+
+      // console.log(colors.bgGreen.white.bold("✅ ALL VALIDATIONS PASSED"));
 
       // Revoke old refresh token
       await refreshToken.revoke("token_rotation");
-
-      // if(refreshToken.revoke) { // Might be an error
-      //   await refreshToken.revoke("token_rotation");
-      // }
 
       // Generate new tokens
       const tokenPayload = {
