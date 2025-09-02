@@ -141,6 +141,11 @@ export class AuthService implements IAuthService {
         throw new UnauthorizedError("Invalid credentials");
       }
 
+      // Check if user has a password (local auth users)
+      if(!user.password) {
+        throw new UnauthorizedError("Invalid credentials");
+      }
+
       // Verify password
       const isPasswordValid = await comparePassword(data.password, user.password);
       if(!isPasswordValid) {

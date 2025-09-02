@@ -11,7 +11,7 @@ export enum UserRole {
 export interface IUser extends Document {
   _id: string;
   email: string;
-  password: string;
+  password?: string;
   firstName: string;
   lastName: string;
   role: UserRole;
@@ -20,6 +20,10 @@ export interface IUser extends Document {
   emailVerificationExpires?: Date | null;
   passwordResetToken?: string | null;
   passwordResetExpires?: Date | null;
+  // Google OAuth fields
+  googleId?: string;
+  profilePicture?: string;
+  authProvider: "local" | "google";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -69,6 +73,10 @@ export interface AppConfig {
     service: string;
     user: string;
     password: string;
+  }
+  OAuth: {
+    googleClientId: string;
+    googleClientSecret: string;
   }
 }
 
@@ -176,6 +184,10 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   password: string;
+}
+
+export interface GoogleAuthRequest {
+  idToken: string;
 }
 
 // Middleware types

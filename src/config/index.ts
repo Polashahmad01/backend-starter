@@ -38,5 +38,9 @@ export const config: AppConfig = {
     service: process.env.EMAIL_SERVICE || "GMAIL",
     user: process.env.EMAIL_USER || "DEFAULT_EMAIL_USER",
     password: process.env.EMAIL_PASSWORD || "DEFAULT_EMAIL_PASSWORD"
+  },
+  OAuth: {
+    googleClientId: process.env.GOOGLE_CLIENT_ID || "DEDAULT_GOOGLE_CLIENT_ID",
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "DEFAULT_GOOGLE_CLIENT_SECRET"
   }
 }
