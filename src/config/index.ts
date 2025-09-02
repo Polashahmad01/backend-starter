@@ -40,7 +40,7 @@ export const config: AppConfig = {
     password: process.env.EMAIL_PASSWORD || "DEFAULT_EMAIL_PASSWORD"
   },
   OAuth: {
-    googleClientId: process.env.GOOGLE_CLIENT_ID || "DEDAULT_GOOGLE_CLIENT_ID",
+    googleClientId: process.env.GOOGLE_CLIENT_ID || "DEFAULT_GOOGLE_CLIENT_ID",
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "DEFAULT_GOOGLE_CLIENT_SECRET"
   }
 }

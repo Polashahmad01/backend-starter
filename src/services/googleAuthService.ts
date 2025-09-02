@@ -30,6 +30,8 @@ export class GoogleAuthService {
    */
   async verifyGoogleToken(idToken: string): Promise<AuthResponse> {
     try {
+      // console.log("Verifying Google ID token with client ID:", process.env.GOOGLE_CLIENT_ID);
+      
       // Verify the ID token cryptographically against Google's public keys
       const ticket = await this.client.verifyIdToken({
         idToken,
@@ -112,6 +114,14 @@ export class GoogleAuthService {
         throw error;
       }
 
+      // Log the actual error for debugging
+      // console.error("Google Auth Error Details:", {
+      //   message: error.message,
+      //   stack: error.stack,
+      //   name: error.name,
+      //   code: error.code
+      // });
+
       // Handle Google Auth Library specific errors
       if(error.message?.includes("Token used too early") ||
         error.message?.includes("Token used too late") ||
@@ -119,7 +129,15 @@ export class GoogleAuthService {
           throw new ValidationError("Invalid or expired Google ID token");
       }
 
-      throw new AuthError("Google authentication failed", 400, "GOOGLE_AUTH_ERROR");
+      if(error.message?.includes("Wrong number of segments")) {
+        throw new ValidationError("Malformed Google ID token");
+      }
+
+      if(error.message?.includes("Invalid audience")) {
+        throw new ValidationError("Google ID token audience mismatch");
+      }
+
+      throw new AuthError(`Google authentication failed: ${error.message}`, 400, "GOOGLE_AUTH_ERROR");
     }
   }
 
