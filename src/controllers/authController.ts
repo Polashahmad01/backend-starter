@@ -5,9 +5,13 @@ import {
   LoginRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
-  AuthenticateRequest
+  AuthenticateRequest,
+  GoogleAuthRequest
 } from "../types/auth";
-import { authService } from "../services";
+import { 
+  authService,
+  googleAuthSerive
+} from "../services";
 
 /**
  * Register a new user
@@ -224,6 +228,50 @@ export const getProfile = async (req: AuthenticateRequest, res: Response, next: 
         user
       }
     })
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
+ * Authenticate user with Google ID token
+ */
+export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { idToken }: GoogleAuthRequest = req.body;
+
+    if(!idToken) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: "MISSING_ID_TOKEN",
+          message: "Google ID token is required"
+        }
+      });
+    }
+
+    // Verify Google ID token cryptographically
+    const result = await googleAuthSerive.verifyGoogleToken(idToken);
+
+    // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: "/"
+    });
+
+    // Return response
+    res.status(200).json({
+      success: true,
+      message: "Google authentication successful",
+      data: {
+        user: result.user,
+        accessToken: result.tokens.accessToken
+      }
+    });
+
   } catch(error) {
     next(error);
   }

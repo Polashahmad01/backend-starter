@@ -12,7 +12,10 @@ const userSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: true,
+    required: function(this: IUser) {
+      // Password is required only for non-OAuth users
+      return !this.googleId;
+    },
     minLength: 8
   },
   firstName: {
@@ -50,6 +53,20 @@ const userSchema = new Schema<IUser>({
   },
   passwordResetExpires: {
     type: Date
+  },
+  // Google OAuth fields
+  googleId: {
+    type: String,
+    sparse: true,
+    index: true
+  },
+  profilePicture: {
+    type: String
+  },
+  authProvider: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local"
   }
 }, {
   timestamps: true,

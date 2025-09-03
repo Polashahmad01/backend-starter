@@ -17,7 +17,8 @@ import {
   forgotPassword,
   resetPassword,
   refresh,
-  getProfile
+  getProfile,
+  googleAuth
 } from "../controllers";
 
 const router = Router();
@@ -79,5 +80,12 @@ router.post("/refresh", validate(refreshTokenSchema), refresh);
  * @access  Private
  */
 router.get("/profile", authenticate, getProfile);
+
+/**
+ * @route   POST /api/auth/google
+ * @desc    Authenticate with Google ID token
+ * @access  Public
+ */
+router.post("/google", googleAuth);
 
 export default router;
