@@ -17,5 +17,16 @@ export interface AppConfig {
   },
   firebase: {
     serviceAccountKey: string;
+  },
+  jwt: {
+    accessSecret: string;
+    refreshSecret: string;
+    accessExpiresIn: string;
+    refreshExpiresIn: string;
+  },
+  application: {
+    appName: string;
+    appUrl: string;
+    frontendUrl: string;
   }
 }

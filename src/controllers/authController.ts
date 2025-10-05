@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { FirebaseAuthRequest } from "../types";
-import { firebaseAuthService, FirebaseAuthService } from "../services";
+import {
+  firebaseAuthService,
+  FirebaseAuthService
+} from "../services";
 
 /**
  * Authenticate user with Google Sign-In via Firebase
@@ -34,15 +37,22 @@ export const googleSignIn = async (req: Request, res: Response, next: NextFuncti
     const result = await firebaseAuthService.verifyFirebaseToken(idToken);
 
     // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: "/"
+    });
 
     // Return response
     res.status(200).json({
       success: true,
-      message: "Google Sign-In via Firebase successful",
-      // data: {
-      //   user: result.user,
-      //   accessToken: result.tokens.accessToken
-      // }
+      message: "Authentication successful — redirecting to your dashboard.",
+      data: {
+        user: result.user,
+        accessToken: result.tokens.accessToken
+      }
     });
 
   } catch (error) {

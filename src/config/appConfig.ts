@@ -21,5 +21,16 @@ export const appConfig: AppConfig = {
   },
   firebase: {
     serviceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY!,
+  },
+  jwt: {
+    accessSecret: process.env.JWT_ACCESS_SECRET!,
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+    refreshSecret: process.env.JWT_REFRESH_SECRET!,
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN!,
+  },
+  application: {
+    appName: process.env.APP_NAME!,
+    appUrl: process.env.APP_URL!,
+    frontendUrl: process.env.FRONT_END_URL!
   }
 }
