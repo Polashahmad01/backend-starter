@@ -18,5 +18,8 @@ export const appConfig: AppConfig = {
   },
   security: {
     cookieSecret: process.env.COOKIE_SECRET || "YOUR_DEFAULT_COOKIE_SECRET",
+  },
+  firebase: {
+    serviceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY!,
   }
 }
