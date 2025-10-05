@@ -14,5 +14,8 @@ export interface AppConfig {
   },
   security: {
     cookieSecret: string;
+  },
+  firebase: {
+    serviceAccountKey: string;
   }
 }
