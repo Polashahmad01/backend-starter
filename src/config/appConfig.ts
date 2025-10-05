@@ -1,0 +1,22 @@
+import dotenv from "dotenv";
+import { AppConfig } from "../types";
+
+dotenv.config();
+
+export const appConfig: AppConfig = {
+  port: parseInt(process.env.PORT || "8000", 10),
+  nodeEnv: process.env.NODE_ENV || "development",
+  baseApiUrl: process.env.BASE_API_URL || "http://localhost:8000",
+  healthCheckApiUrl: process.env.HEALTH_CHECK_API_URL || "http://localhost:8000/api/v1/health",
+  database: {
+    mongoUserName: process.env.MONGO_USERNAME || "YOUR_DEFAULT_MONGODB_USERNAME",
+    mongoPassword: process.env.MONGO_PASSWORD || "YOUR_DEFAULT_MONGODB_PASSWORD",
+    mongoDbName: process.env.MONGO_DB_NAME || "YOUR_DEFAULT_MONGODB_DB_NAME",
+  },
+  cors: {
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map(origin => origin.trim()) : ["http://localhost:3000"],
+  },
+  security: {
+    cookieSecret: process.env.COOKIE_SECRET || "YOUR_DEFAULT_COOKIE_SECRET",
+  }
+}
