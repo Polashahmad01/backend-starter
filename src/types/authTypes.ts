@@ -37,6 +37,14 @@ export interface IRefreshToken extends Document {
   createdAt: Date;
 }
 
+export interface TokenPayload {
+  userId: string;
+  email: string;
+  role: UserRole;
+  iat?: number;
+  exp?: number;
+}
+
 export interface FirebaseAuthRequest {
   idToken: string;
 }
