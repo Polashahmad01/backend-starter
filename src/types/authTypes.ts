@@ -55,6 +55,10 @@ export interface RegisterRequest {
   fullName: string;
 }
 
+export interface VerifyEmailRequest {
+  token: string;
+}
+
 export interface IAuthService {
   registerUser: (user: RegisterRequest) => void;
 }

@@ -3,7 +3,8 @@ import { User, RefreshToken } from "../models";
 import {
   IAuthService,
   RegisterRequest,
-  AuthError
+  AuthError,
+  NotFoundError
 } from "../types";
 import {
   hashPassword,
@@ -62,12 +63,12 @@ export class AuthService implements IAuthService {
       // Send verification email
       try {
         await emailService.sendVerificationEmail(user.email, emailVerificationToken, user.fullName);
-      } catch(error) {
+      } catch (error) {
         console.error(colors.bgRed.white.bold("Failed to send verification email: "), error);
         throw new Error("Failed to send verification email");
       }
 
-      // Return AuthResponse response
+      // Return response
       return {
         user: {
           id: user._id,
@@ -87,6 +88,62 @@ export class AuthService implements IAuthService {
         throw error;
       }
       throw new AuthError("Registration failed", 500, "REGISTRATION_FAILED");
+    }
+  }
+
+  /**
+   * Verify email address
+   */
+  async verifyEmail(token: string) {
+    try {
+      const user = await User.findOne({
+        emailVerificationToken: token,
+        emailVerificationExpires: { $gt: new Date() }
+      });
+
+      if (!user) {
+        throw new NotFoundError("Invalid or expired verification token.");
+      }
+
+      user.isEmailVerified = true;
+      user.emailVerificationToken = null;
+      user.emailVerificationExpires = null;
+
+      await user.save();
+
+      // Generate tokens
+      const tokenPayload = { userId: user._id, email: user.email, role: user.role };
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshTokenValue = generateRefreshToken(tokenPayload);
+
+      // Store refresh token
+      const refreshToken = new RefreshToken({
+        token: refreshTokenValue,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      });
+
+      await refreshToken.save();
+
+      // Return response
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
+        },
+        tokens: {
+          accessToken,
+          refreshToken: refreshTokenValue
+        }
+      }
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Email verification failed", 500, "EMAIL_VERIFICATION_FAILED");
     }
   }
 }

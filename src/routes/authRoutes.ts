@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { validate } from "../middleware";
 import {
-  registerSchema
+  registerSchema,
+  verifyEmailSchema
 } from "../utils/authSchema";
 import {
   register,
+  verifyEmail,
   googleSignIn
 } from "../controllers";
 
@@ -16,6 +18,13 @@ const router = Router();
  * @access  Public
  */
 router.post("/register", validate(registerSchema), register);
+
+/**
+ * @route   POST /api/auth/verify-email
+ * @desc    Verify email address
+ * @access  Public
+ */
+router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
 
 /**
  * @route   POST /api/auth/google
