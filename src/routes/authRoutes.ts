@@ -2,11 +2,13 @@ import { Router } from "express";
 import { validate } from "../middleware";
 import {
   registerSchema,
-  verifyEmailSchema
+  verifyEmailSchema,
+  resendVerificationEmailSchema
 } from "../utils/authSchema";
 import {
   register,
   verifyEmail,
+  resendVerificationEmail,
   googleSignIn
 } from "../controllers";
 
@@ -25,6 +27,13 @@ router.post("/register", validate(registerSchema), register);
  * @access  Public
  */
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
+
+/**
+ * @route   POST /api/auth/resend-verification-email
+ * @desc    Resend verification email
+ * @access  Public
+ */
+router.post("/resend-verification-email", validate(resendVerificationEmailSchema), resendVerificationEmail);
 
 /**
  * @route   POST /api/auth/google

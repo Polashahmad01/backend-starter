@@ -59,6 +59,10 @@ export interface VerifyEmailRequest {
   token: string;
 }
 
+export interface ResendVerificationEmailRequest {
+  email: string;
+}
+
 export interface IAuthService {
   registerUser: (user: RegisterRequest) => void;
 }

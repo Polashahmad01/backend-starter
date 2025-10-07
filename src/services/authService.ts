@@ -146,6 +146,66 @@ export class AuthService implements IAuthService {
       throw new AuthError("Email verification failed", 500, "EMAIL_VERIFICATION_FAILED");
     }
   }
+
+  /**
+   * Resend verification email address
+   */
+  async resendVerificationEmail(email: string) {
+    try {
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        throw new NotFoundError("User not found");
+      }
+
+      if (user.isEmailVerified) {
+        throw new AuthError("Email already verified", 400, "EMAIL_ALREADY_VERIFIED");
+      }
+
+      // Generate tokens
+      const tokenPayload = { userId: user._id, email: user.email, role: user.role };
+      const emailVerificationToken = generateSecureToken();
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshTokenValue = generateRefreshToken(tokenPayload);
+
+      const refreshToken = new RefreshToken({
+        token: refreshTokenValue,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      });
+
+      await refreshToken.save();
+
+      // Send verification email
+      try {
+        await emailService.sendVerificationEmail(user.email, emailVerificationToken, user.fullName);
+      } catch (error) {
+        console.error(colors.bgRed.white.bold("Failed to send verification email: "), error);
+        throw new Error("Failed to send verification email");
+      }
+
+      // Return response
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
+        },
+        tokens: {
+          accessToken,
+          refreshToken: refreshTokenValue
+        }
+      }
+
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Email verification failed", 500, "EMAIL_VERIFICATION_FAILED");
+    }
+  }
 }
 
 // Export singleton instance
