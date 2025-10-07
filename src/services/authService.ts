@@ -162,9 +162,16 @@ export class AuthService implements IAuthService {
         throw new AuthError("Email already verified", 400, "EMAIL_ALREADY_VERIFIED");
       }
 
+      // Generate new verification token and update user
+      const emailVerificationToken = generateSecureToken();
+      const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      
+      user.emailVerificationToken = emailVerificationToken;
+      user.emailVerificationExpires = emailVerificationExpires;
+      await user.save();
+
       // Generate tokens
       const tokenPayload = { userId: user._id, email: user.email, role: user.role };
-      const emailVerificationToken = generateSecureToken();
       const accessToken = generateAccessToken(tokenPayload);
       const refreshTokenValue = generateRefreshToken(tokenPayload);
 
