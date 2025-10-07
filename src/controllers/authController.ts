@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import {
   FirebaseAuthRequest,
   RegisterRequest,
-  VerifyEmailRequest
+  VerifyEmailRequest,
+  ResendVerificationEmailRequest
 } from "../types";
 import {
   firebaseAuthService,
@@ -62,6 +63,28 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
       }
     })
 
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Resend verification email address
+ */
+export const resendVerificationEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email }: ResendVerificationEmailRequest = req.body;
+
+    const result = await authService.resendVerificationEmail(email);
+
+    res.status(200).json({
+      success: true,
+      message: "Verification email Resent successfully — Check your inbox.",
+      data: {
+        user: result.user,
+        accessToken: result.tokens.accessToken,
+      }
+    })
   } catch (error) {
     next(error);
   }

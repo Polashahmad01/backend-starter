@@ -1,7 +1,11 @@
 import z from "zod";
 
 export const verifyEmailSchema = z.object({
-  token: z.string().min(1, "Verification token is required")
+  token: z.string().min(1, "Verification token is required"),
+});
+
+export const resendVerificationEmailSchema = z.object({
+  email: z.string().email("Invalid email format").toLowerCase(),
 });
 
 // Validation schemas using Zod
