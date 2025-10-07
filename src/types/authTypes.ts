@@ -48,3 +48,17 @@ export interface TokenPayload {
 export interface FirebaseAuthRequest {
   idToken: string;
 }
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
+}
+
+export interface IAuthService {
+  registerUser: (user: RegisterRequest) => void;
+}
+
+export interface IEmailService {
+  sendVerificationEmail(email: string, token: string, fullName: string): void;
+}

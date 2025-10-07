@@ -14,6 +14,7 @@ export interface AppConfig {
   },
   security: {
     cookieSecret: string;
+    bcryptRounds: number;
   },
   firebase: {
     serviceAccountKey: string;
@@ -28,5 +29,11 @@ export interface AppConfig {
     appName: string;
     appUrl: string;
     frontendUrl: string;
-  }
+  },
+  email: {
+    from: string;
+    service: string;
+    user: string;
+    password: string;
+  },
 }

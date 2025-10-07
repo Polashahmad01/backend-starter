@@ -1,9 +1,47 @@
 import { Request, Response, NextFunction } from "express";
-import { FirebaseAuthRequest } from "../types";
+import {
+  FirebaseAuthRequest,
+  RegisterRequest
+} from "../types";
 import {
   firebaseAuthService,
-  FirebaseAuthService
+  FirebaseAuthService,
+  authService
 } from "../services";
+import { appConfig } from "../config";
+
+/**
+ * Register a new user
+ */
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password, fullName }: RegisterRequest = req.body;
+
+    // Call authService
+    const result = await authService.registerUser({ email, password, fullName });
+
+    // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: appConfig.nodeEnv === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    // Return response
+    res.status(201).json({
+      success: true,
+      message: "Registration successful. Please check your email to verify your account.",
+      data: {
+        user: result.user,
+        accessToken: result.tokens.accessToken
+      }
+    });
+
+  } catch (error) {
+    next(error);
+  }
+}
 
 /**
  * Authenticate user with Google Sign-In via Firebase
