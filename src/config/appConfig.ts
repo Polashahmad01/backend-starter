@@ -18,6 +18,7 @@ export const appConfig: AppConfig = {
   },
   security: {
     cookieSecret: process.env.COOKIE_SECRET || "YOUR_DEFAULT_COOKIE_SECRET",
+    bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS!, 10),
   },
   firebase: {
     serviceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY!,
@@ -32,5 +33,11 @@ export const appConfig: AppConfig = {
     appName: process.env.APP_NAME!,
     appUrl: process.env.APP_URL!,
     frontendUrl: process.env.FRONT_END_URL!
+  },
+  email: {
+    from: process.env.EMAIL_FROM!,
+    service: process.env.EMAIL_SERVICE!,
+    user: process.env.EMAIL_USER!,
+    password: process.env.EMAIL_PASSWORD!,
   }
 }

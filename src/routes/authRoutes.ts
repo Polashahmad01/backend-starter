@@ -1,7 +1,21 @@
 import { Router } from "express";
-import { googleSignIn } from "../controllers";
+import { validate } from "../middleware";
+import {
+  registerSchema
+} from "../utils/authSchema";
+import {
+  register,
+  googleSignIn
+} from "../controllers";
 
 const router = Router();
+
+/**
+ * @route   POST /api/auth/register
+ * @desc    Register a new user
+ * @access  Public
+ */
+router.post("/register", validate(registerSchema), register);
 
 /**
  * @route   POST /api/auth/google
