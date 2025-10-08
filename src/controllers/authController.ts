@@ -4,7 +4,8 @@ import {
   RegisterRequest,
   VerifyEmailRequest,
   ResendVerificationEmailRequest,
-  LoginRequest
+  LoginRequest,
+  ForgotPasswordRequest
 } from "../types";
 import {
   firebaseAuthService,
@@ -118,6 +119,24 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       }
     });
 
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
+ * Send password reset email
+ */
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email }: ForgotPasswordRequest = req.body;
+
+    await authService.forgotPassword(email);
+
+    res.status(200).json({
+      success: true,
+      message: "If an account with that email exists, a password reset link has been sent."
+    });
   } catch(error) {
     next(error);
   }

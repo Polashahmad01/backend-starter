@@ -280,6 +280,41 @@ export class AuthService implements IAuthService {
       throw new AuthError("Login failed", 500, "LOGIN_FAILED");
     }
   }
+
+  /**
+ * Send password reset email
+ */
+  async forgotPassword(email: string): Promise<void> {
+    try {
+      // Find user by email
+      const user = await User.findOne({ email });
+      if (!user) {
+        // Don't reveal if email exists or not
+        return;
+      }
+
+      const resetToken = generateSecureToken();
+      const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      user.passwordResetToken = resetToken;
+      user.passwordResetExpires = resetExpires;
+
+      await user.save();
+
+      try {
+        await emailService.sendPasswordResetEmail(user.email, resetToken, user.fullName);
+      } catch (error) {
+        console.error(colors.bgRed.white.bold("Failed to send password reset email: "), error);
+        throw new AuthError("Failed to send password reset email.", 500, "EMAIL_SEND_FAILED");
+      }
+
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Password reset request failed", 500, "PASSWORD_RESET_FAILED");
+    }
+  }
 }
 
 // Export singleton instance
