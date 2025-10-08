@@ -24,6 +24,10 @@ export const resetPasswordSchema = z.object({
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
 });
 
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().optional()
+}).or(z.object({}));
+
 // Validation schemas using Zod
 export const registerSchema = z.object({
   email: z.email("Invalid email format").toLowerCase(),

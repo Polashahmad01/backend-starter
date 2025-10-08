@@ -6,7 +6,8 @@ import {
   resendVerificationEmailSchema,
   loginSchema,
   forgotPasswordSchema,
-  resetPasswordSchema
+  resetPasswordSchema,
+  refreshTokenSchema
 } from "../utils/authSchema";
 import {
   register,
@@ -17,6 +18,7 @@ import {
   resetPassword,
   logout,
   getProfile,
+  refresh,
   googleSignIn
 } from "../controllers";
 
@@ -77,6 +79,13 @@ router.post("/logout", logout);
  * @access  Private
  */
 router.get("/profile", authenticate, getProfile);
+
+/**
+ * @route   POST /api/auth/refresh
+ * @desc    Refresh access token
+ * @access  Public
+ */
+router.post("/refresh", validate(refreshTokenSchema), refresh);
 
 /**
  * @route   POST /api/auth/google
