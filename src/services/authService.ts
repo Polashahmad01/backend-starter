@@ -385,13 +385,40 @@ export class AuthService implements IAuthService {
   }
 
   /**
+ * Get user profile by user ID
+ */
+  async getUserProfile(userId: string) {
+    try {
+      const user = await User.findById(userId).select("-password");
+
+      if (!user) {
+        throw new NotFoundError("User not found");
+      }
+
+      return {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified
+      };
+
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Failed to get user profile", 500, "GET_PROFILE_FAILED");
+    }
+  }
+
+  /**
    * Logout user by revoking refresh token
    */
   async logout(refreshTokenValue: string): Promise<void> {
     try {
-      const refreshToken = await RefreshToken.findOne({ 
+      const refreshToken = await RefreshToken.findOne({
         token: refreshTokenValue,
-        isRevoked: false 
+        isRevoked: false
       });
 
       if (refreshToken) {
