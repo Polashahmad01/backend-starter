@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validate } from "../middleware";
+import { validate, authenticate } from "../middleware";
 import {
   registerSchema,
   verifyEmailSchema,
@@ -16,6 +16,7 @@ import {
   forgotPassword,
   resetPassword,
   logout,
+  getProfile,
   googleSignIn
 } from "../controllers";
 
@@ -69,6 +70,13 @@ router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
  * @access  Public
  */
 router.post("/logout", logout);
+
+/**
+ * @route   GET /api/auth/profile
+ * @desc    Get current user profile
+ * @access  Private
+ */
+router.get("/profile", authenticate, getProfile);
 
 /**
  * @route   POST /api/auth/google

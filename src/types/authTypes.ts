@@ -1,4 +1,5 @@
 import { Document } from "mongoose";
+import { Request } from "express";
 
 // User roles for RBAC
 export enum UserRole {
@@ -83,4 +84,13 @@ export interface IAuthService {
 
 export interface IEmailService {
   sendVerificationEmail(email: string, token: string, fullName: string): void;
+}
+
+// Middleware types
+export interface AuthenticateRequest extends Request {
+  user?: {
+    userId: string;
+    email: string;
+    role: UserRole;
+  }
 }

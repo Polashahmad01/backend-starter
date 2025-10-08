@@ -7,6 +7,7 @@ import {
   LoginRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  AuthenticateRequest,
   UnauthorizedError
 } from "../types";
 import {
@@ -190,6 +191,29 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
       message: "Logout successful."
     });
 
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Get current user profile
+ */
+export const getProfile = async (req: AuthenticateRequest, res: Response, next: NextFunction) => {
+  try {
+    // req.user is guaranteed to exist due to authenticate middleware
+    const userId = req.user!.userId;
+
+    // Fetch complete user profile from database
+    const user = await authService.getUserProfile(userId);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user
+      },
+      message: "User profile fetched successfully."
+    });
   } catch (error) {
     next(error);
   }
