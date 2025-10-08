@@ -15,7 +15,8 @@ import {
 } from "../utils/password";
 import {
   generateAccessToken,
-  generateRefreshToken
+  generateRefreshToken,
+  verifyRefreshToken
 } from "../utils/jwt";
 import { emailService } from "./emailService";
 
@@ -428,6 +429,75 @@ export class AuthService implements IAuthService {
     } catch (error) {
       console.error(colors.bgRed.white.bold("Logout error: "), error);
       // Don't throw error to prevent logout failure from blocking the response
+    }
+  }
+
+  /**
+ * Refresh access token using refresh token
+ */
+  async refreshToken(refreshTokenValue: string) {
+    try {
+      // First, find refresh token in database to ensure it exists and is valid
+      const refreshToken = await RefreshToken.findOne({ token: refreshTokenValue, isRevoked: false });
+
+      if (!refreshToken || !refreshToken.isValid()) {
+        throw new UnauthorizedError("Invalid or expired refresh token");
+      }
+
+      // Then verify the JWT token structure and expiration
+      const payload = verifyRefreshToken(refreshTokenValue);
+
+      // Find user
+      const user = await User.findById(payload.userId);
+      if (!user) {
+        throw new UnauthorizedError("User not found");
+      }
+
+      // Ensure the token belongs to the correct user
+      if (refreshToken.userId !== user._id.toString()) {
+        throw new UnauthorizedError("Token user mismatch");
+      }
+
+      // Revoke old refresh token
+      await refreshToken.revoke("token_rotation");
+
+      // Generate new tokens
+      const tokenPayload = {
+        userId: user._id,
+        email: user.email,
+        role: user.role
+      }
+
+      const accessToken = generateAccessToken(tokenPayload);
+      const newRefreshTokenValue = generateRefreshToken(tokenPayload);
+
+      // Store new refresh token
+      const newRefreshToken = new RefreshToken({
+        token: newRefreshTokenValue,
+        userId: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      });
+
+      await newRefreshToken.save();
+
+      return {
+        user: {
+          id: user._id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified
+        },
+        tokens: {
+          accessToken,
+          refreshToken: newRefreshTokenValue
+        }
+      }
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Token refresh failed", 500, "TOKEN_REFRESH_FAILED");
     }
   }
 }

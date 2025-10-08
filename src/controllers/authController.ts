@@ -220,6 +220,48 @@ export const getProfile = async (req: AuthenticateRequest, res: Response, next: 
 }
 
 /**
+ * Refresh access token
+ */
+export const refresh = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Try to get refresh token from cookie first, then from body
+    const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
+    if(!refreshTokenValue) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "REFRESH_TOKEN_REQUIRED",
+          message: "Refresh token is required"
+        }
+      });
+    }
+
+    const result = await authService.refreshToken(refreshTokenValue);
+
+    // Set new refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    // Return response
+    res.status(200).json({
+      success: true,
+      message: "Token refreshed successfully.",
+      data: {
+        user: result.user,
+        accessToken: result.tokens.accessToken
+      }
+    })
+
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
  * Authenticate user with Google Sign-In via Firebase
  */
 export const googleSignIn = async (req: Request, res: Response, next: NextFunction) => {
