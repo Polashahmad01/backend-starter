@@ -63,6 +63,11 @@ export interface ResendVerificationEmailRequest {
   email: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
 export interface IAuthService {
   registerUser: (user: RegisterRequest) => void;
 }

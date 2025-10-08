@@ -3,12 +3,14 @@ import { validate } from "../middleware";
 import {
   registerSchema,
   verifyEmailSchema,
-  resendVerificationEmailSchema
+  resendVerificationEmailSchema,
+  loginSchema
 } from "../utils/authSchema";
 import {
   register,
   verifyEmail,
   resendVerificationEmail,
+  login,
   googleSignIn
 } from "../controllers";
 
@@ -34,6 +36,13 @@ router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
  * @access  Public
  */
 router.post("/resend-verification-email", validate(resendVerificationEmailSchema), resendVerificationEmail);
+
+/**
+ * @route   POST /api/auth/login
+ * @desc    Login user
+ * @access  Public
+ */
+router.post("/login", validate(loginSchema), login);
 
 /**
  * @route   POST /api/auth/google

@@ -3,7 +3,8 @@ import {
   FirebaseAuthRequest,
   RegisterRequest,
   VerifyEmailRequest,
-  ResendVerificationEmailRequest
+  ResendVerificationEmailRequest,
+  LoginRequest
 } from "../types";
 import {
   firebaseAuthService,
@@ -91,6 +92,38 @@ export const resendVerificationEmail = async (req: Request, res: Response, next:
 }
 
 /**
+ * Login user
+ */
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data: LoginRequest = req.body;
+
+    const result = await authService.login(data);
+
+    // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: appConfig.nodeEnv === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    // Return response
+    res.status(200).json({
+      success: true,
+      message: "Login successful.",
+      data: {
+        user: result.user,
+        accessToken: result.tokens.accessToken
+      }
+    });
+
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
  * Authenticate user with Google Sign-In via Firebase
  */
 export const googleSignIn = async (req: Request, res: Response, next: NextFunction) => {
@@ -124,7 +157,7 @@ export const googleSignIn = async (req: Request, res: Response, next: NextFuncti
     // Set refresh token as HttpOnly cookie
     res.cookie("refreshToken", result.tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: appConfig.nodeEnv === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: "/"
