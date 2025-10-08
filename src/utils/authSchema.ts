@@ -5,12 +5,16 @@ export const verifyEmailSchema = z.object({
 });
 
 export const resendVerificationEmailSchema = z.object({
-  email: z.string().email("Invalid email format").toLowerCase(),
+  email: z.email("Invalid email format").toLowerCase(),
 });
 
 export const loginSchema = z.object({
   email: z.email("Invalid email format").toLowerCase(),
   password: z.string().min(1, "Password is required")
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.email("Invalid email format").toLowerCase()
 });
 
 // Validation schemas using Zod

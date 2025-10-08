@@ -4,13 +4,15 @@ import {
   registerSchema,
   verifyEmailSchema,
   resendVerificationEmailSchema,
-  loginSchema
+  loginSchema,
+  forgotPasswordSchema
 } from "../utils/authSchema";
 import {
   register,
   verifyEmail,
   resendVerificationEmail,
   login,
+  forgotPassword,
   googleSignIn
 } from "../controllers";
 
@@ -43,6 +45,13 @@ router.post("/resend-verification-email", validate(resendVerificationEmailSchema
  * @access  Public
  */
 router.post("/login", validate(loginSchema), login);
+
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Send password reset email
+ * @access  Public
+ */
+router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
 
 /**
  * @route   POST /api/auth/google
