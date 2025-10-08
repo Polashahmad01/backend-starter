@@ -17,6 +17,13 @@ export const forgotPasswordSchema = z.object({
   email: z.email("Invalid email format").toLowerCase()
 });
 
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset token is required"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
+});
+
 // Validation schemas using Zod
 export const registerSchema = z.object({
   email: z.email("Invalid email format").toLowerCase(),
