@@ -6,7 +6,8 @@ import {
   ResendVerificationEmailRequest,
   LoginRequest,
   ForgotPasswordRequest,
-  ResetPasswordRequest
+  ResetPasswordRequest,
+  UnauthorizedError
 } from "../types";
 import {
   firebaseAuthService,
@@ -171,12 +172,14 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
  */
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Try to get refresh token from cookie first, then from body
-    const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
+    // Try to get refresh token from cookie first
+    const refreshTokenValue = req.cookies.refreshToken;
 
-    if(refreshTokenValue) {
-      await authService.logout(refreshTokenValue);
+    if (!refreshTokenValue) {
+      throw new UnauthorizedError("Unable to logout. Refresh token not found");
     }
+
+    await authService.logout(refreshTokenValue);
 
     // Clear refresh token cookie
     res.clearCookie("refreshToken");
@@ -187,7 +190,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
       message: "Logout successful."
     });
 
-  } catch(error) {
+  } catch (error) {
     next(error);
   }
 }
