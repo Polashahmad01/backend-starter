@@ -31,7 +31,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     res.cookie("refreshToken", result.tokens.refreshToken, {
       httpOnly: true,
       secure: appConfig.nodeEnv === "production",
-      sameSite: "strict",
+      sameSite: "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -108,7 +109,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     res.cookie("refreshToken", result.tokens.refreshToken, {
       httpOnly: true,
       secure: appConfig.nodeEnv === "production",
-      sameSite: "strict",
+      sameSite: "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -183,7 +185,12 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     await authService.logout(refreshTokenValue);
 
     // Clear refresh token cookie
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: appConfig.nodeEnv === "production",
+      sameSite: "none",
+      path: "/"
+    });
 
     // Return response
     res.status(200).json({
@@ -242,7 +249,8 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     res.cookie("refreshToken", result.tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -296,9 +304,9 @@ export const googleSignIn = async (req: Request, res: Response, next: NextFuncti
     res.cookie("refreshToken", result.tokens.refreshToken, {
       httpOnly: true,
       secure: appConfig.nodeEnv === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: "/"
+      sameSite: "none",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     // Return response
