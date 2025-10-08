@@ -167,6 +167,32 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 }
 
 /**
+ * Logout user
+ */
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Try to get refresh token from cookie first, then from body
+    const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
+
+    if(refreshTokenValue) {
+      await authService.logout(refreshTokenValue);
+    }
+
+    // Clear refresh token cookie
+    res.clearCookie("refreshToken");
+
+    // Return response
+    res.status(200).json({
+      success: true,
+      message: "Logout successful."
+    });
+
+  } catch(error) {
+    next(error);
+  }
+}
+
+/**
  * Authenticate user with Google Sign-In via Firebase
  */
 export const googleSignIn = async (req: Request, res: Response, next: NextFunction) => {

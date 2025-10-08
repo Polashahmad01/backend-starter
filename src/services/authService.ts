@@ -383,6 +383,26 @@ export class AuthService implements IAuthService {
       throw new AuthError("Password reset failed", 500, "PASSWORD_RESET_FAILED");
     }
   }
+
+  /**
+   * Logout user by revoking refresh token
+   */
+  async logout(refreshTokenValue: string): Promise<void> {
+    try {
+      const refreshToken = await RefreshToken.findOne({ 
+        token: refreshTokenValue,
+        isRevoked: false 
+      });
+
+      if (refreshToken) {
+        await refreshToken.revoke("logout");
+      }
+
+    } catch (error) {
+      console.error(colors.bgRed.white.bold("Logout error: "), error);
+      // Don't throw error to prevent logout failure from blocking the response
+    }
+  }
 }
 
 // Export singleton instance
