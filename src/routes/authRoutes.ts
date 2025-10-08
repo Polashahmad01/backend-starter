@@ -15,6 +15,7 @@ import {
   login,
   forgotPassword,
   resetPassword,
+  logout,
   googleSignIn
 } from "../controllers";
 
@@ -61,6 +62,13 @@ router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
  * @access  Public
  */
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
+
+/**
+ * @route   POST /api/auth/logout
+ * @desc    Logout user
+ * @access  Public
+ */
+router.post("/logout", logout);
 
 /**
  * @route   POST /api/auth/google
