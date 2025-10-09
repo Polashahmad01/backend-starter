@@ -36,4 +36,8 @@ export interface AppConfig {
     user: string;
     password: string;
   },
+  resendEmailProvider: {
+    apiKey: string;
+    emailFrom: string;
+  }
 }
