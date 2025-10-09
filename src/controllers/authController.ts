@@ -156,6 +156,15 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 
     const result = await authService.resetPassword(token, password);
 
+    // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: appConfig.nodeEnv === "production",
+      sameSite: "none",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     res.status(200).json({
       success: true,
       message: "Password reset successfully.",
