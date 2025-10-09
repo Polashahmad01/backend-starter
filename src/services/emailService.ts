@@ -1,57 +1,36 @@
-import nodemailer, { Transporter, SendMailOptions } from "nodemailer";
-import colors from "colors";
+import { Resend } from "resend";
 import { IEmailService } from "../types";
 import { appConfig } from "../config";
 
 export class EmailService implements IEmailService {
-  private transporter: Transporter;
+  private resend: Resend;
+
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: appConfig.email.service,
-      auth: {
-        user: appConfig.email.user,
-        pass: appConfig.email.password,
-      }
+    this.resend = new Resend(appConfig.email.apiKey);
+  }
+
+  private async sendEmail(email: string, subject: string, html: string) {
+    await this.resend.emails.send({
+      from: appConfig.email.emailFrom,
+      to: email,
+      subject,
+      html,
     });
   }
 
   async sendVerificationEmail(email: string, token: string, fullName: string) {
     const verificationUrl = `${appConfig.application.frontendUrl}/verify-email?token=${token}`;
-    const mailOptions: SendMailOptions = {
-      from: appConfig.email.from,
-      to: email,
-      subject: `Welcome to ${appConfig.application.appName} - Verify Your Email`,
-      html: this.getVerificationEmailTemplate(fullName, verificationUrl)
-    };
-
-    try {
-      await this.transporter.sendMail(mailOptions);
-    } catch (error) {
-      console.error(colors.bgRed.white.bold("Failed to send verification email: "), error);
-      throw new Error("Failed to send verification email");
-    }
+    await this.sendEmail(email, "Verify Your Email", this.getVerificationEmailTemplate(fullName, verificationUrl));
   }
 
-  // Send password reset email
-  async sendPasswordResetEmail(email: string, token: string, fullName: string): Promise<void> {
+  async sendPasswordResetEmail(email: string, token: string, fullName: string) {
     const resetUrl = `${appConfig.application.frontendUrl}/reset-password?token=${token}`;
-
-    const mailOptions: SendMailOptions = {
-      from: appConfig.email.from,
-      to: email,
-      subject: `${appConfig.application.appName} - Password Reset Request`,
-      html: this.getPasswordResetEmailTemplate(fullName, resetUrl)
-    }
-
-    try {
-      await this.transporter.sendMail(mailOptions);
-    } catch (error) {
-      console.error(colors.bgRed.white.bold("Failed to send password reset email:"), error);
-      throw new Error("Failed to send password reset email");
-    }
+    await this.sendEmail(email, "Reset Your Password", this.getPasswordResetEmailTemplate(fullName, resetUrl));
   }
 
-  // Email verification template
+  /**
+   * Email verification template
+   */
   private getVerificationEmailTemplate(firstName: string, verificationUrl: string) {
     return `
       <!DOCTYPE html>
@@ -134,5 +113,4 @@ export class EmailService implements IEmailService {
   }
 }
 
-// Export singleton instance
 export const emailService = new EmailService();

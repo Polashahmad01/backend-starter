@@ -35,12 +35,6 @@ export const appConfig: AppConfig = {
     frontendUrl: process.env.FRONT_END_URL!
   },
   email: {
-    from: process.env.EMAIL_FROM!,
-    service: process.env.EMAIL_SERVICE!,
-    user: process.env.EMAIL_USER!,
-    password: process.env.EMAIL_PASSWORD!,
-  },
-  resendEmailProvider: {
     apiKey: process.env.RESEND_API_KEY!,
     emailFrom: process.env.EMAIL_FROM!,
   }

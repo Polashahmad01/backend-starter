@@ -18,7 +18,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken
 } from "../utils/jwt";
-import { resendEmailService } from "./resendEmailService";
+import { emailService } from "./emailService";
 
 export class AuthService implements IAuthService {
   /**
@@ -64,9 +64,9 @@ export class AuthService implements IAuthService {
 
       await refreshToken.save();
 
-      // Send verification email using resend
+      // Send verification email
       try {
-        await resendEmailService.sendVerificationEmail(user.email, emailVerificationToken, user.fullName);
+        await emailService.sendVerificationEmail(user.email, emailVerificationToken, user.fullName);
       } catch (error) {
         console.error(colors.bgRed.white.bold("Failed to send verification email: "), error);
         throw new Error("Failed to send verification email");
@@ -187,9 +187,9 @@ export class AuthService implements IAuthService {
 
       await refreshToken.save();
 
-      // Send verification email using resend
+      // Send verification email again
       try {
-        await resendEmailService.sendVerificationEmail(user.email, emailVerificationToken, user.fullName);
+        await emailService.sendVerificationEmail(user.email, emailVerificationToken, user.fullName);
       } catch (error) {
         console.error(colors.bgRed.white.bold("Failed to send verification email: "), error);
         throw new Error("Failed to send verification email");
@@ -302,9 +302,9 @@ export class AuthService implements IAuthService {
 
       await user.save();
 
-      // Send password reset email using Resend
+      // Send password reset email
       try {
-        await resendEmailService.sendPasswordResetEmail(user.email, resetToken, user.fullName);
+        await emailService.sendPasswordResetEmail(user.email, resetToken, user.fullName);
       } catch (error) {
         console.error(colors.bgRed.white.bold("Failed to send password reset email: "), error);
         throw new AuthError("Failed to send password reset email.", 500, "EMAIL_SEND_FAILED");

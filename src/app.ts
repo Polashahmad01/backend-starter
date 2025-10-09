@@ -21,7 +21,7 @@ export const createApp = async (): Promise<express.Application> => {
   const app = express();
 
   // Trust proxy for accurate IP addresses
-  // app.set("trust proxy", 1);
+  app.set("trust proxy", 1);
 
   // Security middleware
   app.use(securityHeaders);

@@ -84,10 +84,6 @@ export interface IAuthService {
 
 export interface IEmailService {
   sendVerificationEmail(email: string, token: string, fullName: string): void;
-}
-
-export interface IEmailServiceResend {
-  sendVerificationEmail(email: string, token: string, fullName: string): void;
   sendPasswordResetEmail(email: string, token: string, fullName: string): void;
 }
 

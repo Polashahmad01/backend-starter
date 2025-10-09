@@ -31,12 +31,6 @@ export interface AppConfig {
     frontendUrl: string;
   },
   email: {
-    from: string;
-    service: string;
-    user: string;
-    password: string;
-  },
-  resendEmailProvider: {
     apiKey: string;
     emailFrom: string;
   }
