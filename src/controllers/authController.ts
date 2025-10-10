@@ -60,6 +60,15 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
 
     const result = await authService.verifyEmail(token);
 
+    // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: appConfig.nodeEnv === "production",
+      sameSite: "none",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     res.status(200).json({
       success: true,
       message: "Email verified successfully — redirecting to your dashboard.",
@@ -82,6 +91,15 @@ export const resendVerificationEmail = async (req: Request, res: Response, next:
     const { email }: ResendVerificationEmailRequest = req.body;
 
     const result = await authService.resendVerificationEmail(email);
+
+    // Set refresh token as HttpOnly cookie
+    res.cookie("refreshToken", result.tokens.refreshToken, {
+      httpOnly: true,
+      secure: appConfig.nodeEnv === "production",
+      sameSite: "none",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
 
     res.status(200).json({
       success: true,
@@ -242,7 +260,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
   try {
     // Try to get refresh token from cookie first, then from body
     const refreshTokenValue = req.cookies.refreshToken || req.body.refreshToken;
-    if(!refreshTokenValue) {
+    if (!refreshTokenValue) {
       return res.status(401).json({
         success: false,
         error: {
@@ -257,7 +275,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     // Set new refresh token as HttpOnly cookie
     res.cookie("refreshToken", result.tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: appConfig.nodeEnv === "production",
       sameSite: "none",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
@@ -273,7 +291,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
       }
     })
 
-  } catch(error) {
+  } catch (error) {
     next(error);
   }
 }
