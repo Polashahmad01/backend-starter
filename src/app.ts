@@ -62,7 +62,7 @@ export const startServer = async (): Promise<void> => {
     const app = await createApp();
 
     // Start server
-    const server = app.listen(8000, () => {
+    const server = app.listen(appConfig.port, () => {
       console.log(colors.bgYellow.white.bold(`🚀 Server running on port: ${appConfig.port}`));
       console.log(colors.bgYellow.white.bold(`📝 Environment: ${appConfig.nodeEnv}`));
       console.log(colors.bgYellow.white.bold(`🔗 BASE API URL: ${appConfig.baseApiUrl}`));
